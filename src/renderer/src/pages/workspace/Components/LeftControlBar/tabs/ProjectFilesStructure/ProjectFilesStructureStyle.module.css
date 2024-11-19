@@ -1,0 +1,7 @@
+.fileStructure{
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.fileStructure::-webkit-scrollbar {
+    display: none;
+  }

@@ -1,0 +1,183 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+      --backgroundImage: url("assets/light-backgrond.jpg");
+
+      --background: #E6E6E6;
+
+      --growBoxColor: #E6E6E6;
+      --card: 0 0% 100%;
+      --card-foreground: 222.2 84% 4.9%;
+
+      --popover: 0 0% 100%;
+      --popover-foreground: 222.2 84% 4.9%;
+
+      --primary: 222.2 47.4% 11.2%;
+      --primary-foreground: 210 40% 98%;
+
+      --secondary: 210 40% 96.1%;
+      --secondary-foreground: 222.2 47.4% 11.2%;
+
+      --muted: 210 40% 96.1%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+
+      --accent: 210 40% 96.1%;
+      --accent-foreground: 222.2 47.4% 11.2%;
+
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 210 40% 98%;
+
+      --border: 214.3 31.8% 91.4%;
+      --input: 214.3 31.8% 91.4%;
+      --ring: 222.2 84% 4.9%;
+      --radius: 0.5rem;
+      --shadowTextBackClip:text;
+      --shadowTextColor: transparent;
+      --shadowTextBackground : #666666;
+      --shadowTextShadow: 0px 3px 3px rgba(255, 255, 255, 0.5);
+  }
+
+  .dark {
+    --backgroundImage: url("assets/dark-background.jpg");
+
+
+
+      --background: #1E1E1E;
+      --foreground: 210 40% 98%;
+      --backgroundSize: 20%;
+
+
+      --backop: soft-light;
+      --growBoxColor : #2B2A33;
+      --shadowTextColor: white;
+      --shadowTextBackground: None;
+      --shadowTextBackClip : None;
+      --shadowTextShadow: None;
+
+      --card: 222.2 84% 4.9%;
+      --card-foreground: 210 40% 98%;
+
+      --popover: 222.2 84% 4.9%;
+      --popover-foreground: 210 40% 98%;
+
+      --primary: 210 40% 98%;
+      --primary-foreground: 222.2 47.4% 11.2%;
+
+      --secondary: 217.2 32.6% 17.5%;
+      --secondary-foreground: 210 40% 98%;
+
+      --muted: 217.2 32.6% 17.5%;
+      --muted-foreground: 215 20.2% 65.1%;
+
+      --accent: 217.2 32.6% 17.5%;
+      --accent-foreground: 210 40% 98%;
+
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 210 40% 98%;
+
+      --border: 217.2 32.6% 17.5%;
+      --input: 217.2 32.6% 17.5%;
+      --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+body {
+  background-color: var(--background);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.bodyBackground {
+  margin: 0;
+  background:  var(--backgroundImage);
+  background-repeat: repeat-y;
+  background-position: top left;
+  background-size: cover;
+  background-attachment: fixed;
+  animation: zoomPan 40s ease-in-out infinite;
+
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+.noscrollbar{
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.noscrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+background-position: left center; / Start zoomed on the left /
+background-attachment: fixed; / Fix the background in place /
+animation: zoomPan 0s ease-in-out infinite;
+overflow-y: scroll; / Allow scrolling /
+*/
+
+@keyframes zoomPan {
+  0% {
+    background-size: 150%;
+    background-position: left center;
+  }
+  13.5% {
+    background-size: 120%;
+    background-position: top left;
+  }
+  25%{
+    background-size: 120%;
+    background-position: center top;
+  }
+  37.5%{
+    background-size: 100%;
+    background-position: right top;
+  }
+  50% {
+    background-size: 100%;
+    background-position: right center;
+  }
+  62.5%{
+    background-size: 120%;
+    background-position: bottom right;
+  }
+  75% {
+    background-size: 120%;
+    background-position: bottom center;
+  }
+  87.5%{
+    background-size: 120%;
+    background-position: bottom left;
+
+  }
+  100% {
+    background-size: 150%;
+    background-position: left center;
+  }
+}
+
+.titlebar {
+  -webkit-app-region: drag;
+}
+
+.scoped-container * {
+  all: unset;
+}
