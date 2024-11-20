@@ -42,20 +42,14 @@ function registerIpcFileControls() {
       const controlFolder = await fs.readdir(sarthiRoot)
       const rootFolder = await fs.readdir(rootPath)
 
-      var files = {}
-      // const injectedScript = document.createElement('script')
-      // injectedScript.id = 'injected-script'
+      let files = {}
 
-      // main base folder read
-      // todo: Remove when done experimenting
       for (const entry in rootFolder) {
         if (rootFolder[entry].endsWith('.js')) {
-          // injectedScript.src = path.join(rootPath, rootFolder[entry])
-          // injectedScript.type = 'module'
-          // document.body.appendChild(injectedScript)
+          const content = await fs.readFile(path.join(rootPath,rootFolder[entry]))
+          files['js'] = content.toString()
         }
       }
-
       //  Modded space
       for (const entry in controlFolder) {
         if (controlFolder[entry].endsWith('.html.json')) {
@@ -69,6 +63,29 @@ function registerIpcFileControls() {
             path.join(rootPath, '.sarthi/project-structure', controlFolder[entry])
           )
           files['css'] = JSON.parse(content.toString())
+        }
+      }
+      event.returnValue = files
+    } catch (e) {
+      console.log(e)
+    }
+  })
+  ipcMain.on('readMainFilePaths', async (event, rootPath) => {
+    try {
+      const rootFolder = await fs.readdir(rootPath)
+      const files = {}
+      for (const entry of rootFolder) {
+        const entryPath = path.join(rootPath, entry)
+        const stats = await fs.stat(entryPath)
+        if (stats.isFile()) {
+          const parts = entry.split('.')
+          const ext = parts.length > 1 ? parts[parts.length - 1] : ''
+          if (ext) {
+            if (!files[ext]) {
+              files[ext] = []
+            }
+            files[ext].push(entryPath)
+          }
         }
       }
       event.returnValue = files

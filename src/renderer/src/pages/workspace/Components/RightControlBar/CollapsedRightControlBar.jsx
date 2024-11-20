@@ -1,10 +1,9 @@
-import { TbLayoutNavbarCollapse, TbLayoutSidebarLeftCollapse } from "solid-icons/tb"
-import { VsDesktopDownload } from "solid-icons/vs"
+import {TbLayoutSidebarLeftCollapse } from "solid-icons/tb"
 import {BsFullscreen} from "solid-icons/bs";
 import {AiOutlineFullscreen} from "solid-icons/ai";
 import {createDraggable} from "@neodrag/solid";
 
-function CollapsedRightControlBar({switchIsCollapsed,isWideViewActive,switchWideView}) {
+function CollapsedRightControlBar({switchIsCollapsed,isWideViewActive,switchWideView,injectJs}) {
     const { draggable } = createDraggable();
   return (
     <div
@@ -31,8 +30,9 @@ function CollapsedRightControlBar({switchIsCollapsed,isWideViewActive,switchWide
                     </div>
                 </div>
                 <div class="justify-center items-center flex">
-                    <button 
-                      class="justify-center items-center flex [animation:spin_500ms_ease-in-out_1]" 
+                  <button class="mx-3 px-2 rounded bg-[#222]" onclick={injectJs}>JS</button>
+                    <button
+                      class="justify-center items-center flex [animation:spin_500ms_ease-in-out_1]"
                       onclick={switchIsCollapsed}
                     >
                         <TbLayoutSidebarLeftCollapse />

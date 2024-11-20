@@ -1,4 +1,8 @@
+// This Component requires the json format of html
+// from parse 5
+
 import { For } from 'solid-js'
+
 import { Dynamic } from 'solid-js/web'
 
 function isSolidRenderableTag(tag) {

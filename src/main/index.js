@@ -15,12 +15,13 @@ function createWindow() {
     frame: false,
     minWidth: 500,
     autoHideMenuBar: true,
-
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      allowRunningInsecureContent: true
+      webSecurity: false,
+      webviewTag: true,
+      nodeIntegration: true
     }
   })
 

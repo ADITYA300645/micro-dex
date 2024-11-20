@@ -9,6 +9,9 @@ import { PageRenderer } from './Components/PageRenderer/PageRenderer'
 import { createMutable } from 'solid-js/store'
 
 function Workspace() {
+
+  let windowRef;
+
   const location = useLocation()
   // console.log(location.state.path)
 
@@ -21,9 +24,7 @@ function Workspace() {
   const [renderWindowHeight, setRenderWindowHeight] = createSignal(500)
 
   const [isWideViewActive, setIsWideViewActive] = createSignal(false)
-  const [jsEnabled, setJsEnabled] = createSignal(false);
-
-
+  const [jsEnabled, setJsEnabled] = createSignal(false)
 
   function switchIsWideView() {
     console.log(isWideViewActive())
@@ -40,8 +41,15 @@ function Workspace() {
 
   // Todo: OPTIMIZE IT
   var filesData = window.fileHandler.readMainFile(location.state.path)
-  // filesData.css = { '.sarthiStyles': filesData.css }
   renderFile.files = filesData
+
+  function injectJs(){
+    const injectedScript = document.createElement('script')
+    injectedScript.text = renderFile.files["js"]
+    console.log("APPEND")
+    windowRef.appendChild(injectedScript)
+  }
+
 
   return (
     <div class="">
@@ -55,6 +63,7 @@ function Workspace() {
         <LeftControlBar isCollapsed={isLeftCollapsed} switchIsCollapsed={switchIsLeftCollapsed} />
       )}
       <PageRenderer
+        windowRef = {(el) => (windowRef = el)}
         files={renderFile.files}
         isWideView={isWideViewActive}
         setWidth={setRenderWindowWidth}
@@ -64,6 +73,7 @@ function Workspace() {
       />
       {isRightCollapsed() === false ? (
         <CollapsedRightControlBar
+          injectJs={injectJs}
           isWideViewActive={isWideViewActive}
           switchWideView={switchIsWideView}
           switchIsCollapsed={switchIsRightCollapsed}

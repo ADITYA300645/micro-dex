@@ -3,7 +3,7 @@ import CurrentFileComponentsStructure from './tabs/CurrentFileComponentsStructur
 import { createSignal, Show, onCleanup } from 'solid-js'
 import { TbLayoutNavbarCollapse } from 'solid-icons/tb'
 
-function LeftControlBar({ isCollapsed, switchIsCollapsed }) {
+function LeftControlBar(props) {
   const [activeTab, setActiveTab] = createSignal('Files')
   const [width, setWidth] = createSignal(256)
   const [isResizing, setIsResizing] = createSignal(false)
@@ -37,35 +37,35 @@ function LeftControlBar({ isCollapsed, switchIsCollapsed }) {
 
   return (
     <div
-      className={`fixed top-8 left-0 mx-2 my-3 z-10 rounded h-[93vh] py-2 px-4 dark:bg-[#141414] bg-[#fff]`}
+      class={`fixed top-8 left-0 mx-2 my-3 z-10 rounded h-[93vh] py-2 px-4 dark:bg-[#141414] bg-[#fff]`}
       style={{ width: `${width()}px` }}
     >
-      <div className="flex space-x-2 mb-3 justify-between items-center">
-        <div className="justify-center items-center flex font-medium">
+      <div class="flex space-x-2 mb-3 justify-between items-center">
+        <div class="justify-center items-center flex font-medium">
           <button
             onClick={() => setActiveTab('Files')}
-            className={`px-2 py-1 text-sm rounded ${activeTab() === 'Files' ? 'bg-gray-300 dark:bg-[#242424]' : 'bg-transparent'}`}
+            class={`px-2 py-1 text-sm rounded ${activeTab() === 'Files' ? 'bg-gray-300 dark:bg-[#242424]' : 'bg-transparent'}`}
           >
             Files
           </button>
           <button
             onClick={() => setActiveTab('Components')}
-            className={`px-2 py-1 text-sm rounded ${activeTab() === 'Components' ? 'bg-gray-300 dark:bg-[#242424]' : 'bg-transparent'}`}
+            class={`px-2 py-1 text-sm rounded ${activeTab() === 'Components' ? 'bg-gray-300 dark:bg-[#242424]' : 'bg-transparent'}`}
           >
             Components
           </button>
         </div>
-        <div className="justify-center items-center flex">
+        <div class="justify-center items-center flex">
           <button
-            className="justify-center items-center flex [animation:spin_500ms_ease-in-out_1]"
-            onclick={switchIsCollapsed}
+            class="justify-center items-center flex [animation:spin_500ms_ease-in-out_1]"
+            onClick={props.switchIsCollapsed}
           >
             <TbLayoutNavbarCollapse />
           </button>
         </div>
       </div>
 
-      <div className="border-t overflow-auto max-h-[86vh] border-gray-300 dark:border-gray-600 mt-2 pt-2 noscrollbar">
+      <div class="border-t overflow-auto max-h-[86vh] border-gray-300 dark:border-gray-600 mt-2 pt-2 noscrollbar">
         <Show when={activeTab() === 'Files'} fallback={<CurrentFileComponentsStructure />}>
           <ProjectFilesStructure />
         </Show>
@@ -73,9 +73,9 @@ function LeftControlBar({ isCollapsed, switchIsCollapsed }) {
 
       {/* Resizer on the right */}
       <div
-        className="absolute top-0 right-0 h-full w-1 cursor-col-resize bg-transparent"
+        class="absolute top-0 right-0 h-full w-1 cursor-col-resize bg-transparent"
         onMouseDown={handleMouseDown}
-        style={{ touchAction: 'none', userSelect: 'none' }}
+        style={{ 'touch-action': 'none', 'user-select': 'none' }}
       />
     </div>
   )
