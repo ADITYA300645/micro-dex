@@ -9,11 +9,10 @@ import { PageRenderer } from './Components/PageRenderer/PageRenderer'
 import { createMutable } from 'solid-js/store'
 
 function Workspace() {
-
-  let windowRef;
-
   const location = useLocation()
   // console.log(location.state.path)
+
+  const [isScriptEnabled, setIsScriptEnabled] = createSignal(false)
 
   const renderFile = createMutable({ files: {} })
 
@@ -24,10 +23,12 @@ function Workspace() {
   const [renderWindowHeight, setRenderWindowHeight] = createSignal(500)
 
   const [isWideViewActive, setIsWideViewActive] = createSignal(false)
-  const [jsEnabled, setJsEnabled] = createSignal(false)
+
+  const [currentlySelectedElement, setCurrentlySelectedElement] = createSignal(null)
 
   function switchIsWideView() {
-    console.log(isWideViewActive())
+    // console.log(isWideViewActive())
+    setIsScriptEnabled(false)
     setIsWideViewActive((isWideView) => !isWideView)
   }
 
@@ -39,17 +40,43 @@ function Workspace() {
     setIsRightCollapsed((is_collapsed) => !is_collapsed)
   }
 
-  // Todo: OPTIMIZE IT
   var filesData = window.fileHandler.readMainFile(location.state.path)
   renderFile.files = filesData
 
-  function injectJs(){
-    const injectedScript = document.createElement('script')
-    injectedScript.text = renderFile.files["js"]
-    console.log("APPEND")
-    windowRef.appendChild(injectedScript)
+  const injectScript = () => {
+    if (!isScriptEnabled()) {
+      const scriptElement = document.createElement('script')
+      scriptElement.id = 'dynamic-script'
+      scriptElement.textContent = `(()=>{${renderFile.files['js']}})()`
+      document.body.appendChild(scriptElement)
+      setIsScriptEnabled(true)
+    }
   }
 
+  // Function to remove the script
+  const removeScript = () => {
+    const existingScript = document.getElementById('dynamic-script')
+    if (existingScript) {
+      document.body.removeChild(existingScript)
+      setIsScriptEnabled(false) // Update state
+      // console.log('Script Removed')
+    }
+  }
+
+  const toggleScript = () => {
+    if (isScriptEnabled()) {
+      removeScript()
+      switchIsWideView()
+      switchIsWideView()
+      setIsScriptEnabled(false)
+    } else {
+      removeScript()
+      switchIsWideView()
+      switchIsWideView()
+      injectScript()
+      setIsScriptEnabled(true)
+    }
+  }
 
   return (
     <div class="">
@@ -63,7 +90,8 @@ function Workspace() {
         <LeftControlBar isCollapsed={isLeftCollapsed} switchIsCollapsed={switchIsLeftCollapsed} />
       )}
       <PageRenderer
-        windowRef = {(el) => (windowRef = el)}
+        currentlySelectedElement={currentlySelectedElement}
+        setCurrentlySelectedElement={setCurrentlySelectedElement}
         files={renderFile.files}
         isWideView={isWideViewActive}
         setWidth={setRenderWindowWidth}
@@ -71,15 +99,21 @@ function Workspace() {
         windowWidth={renderWindowWidth()}
         windowHeight={renderWindowHeight()}
       />
+
       {isRightCollapsed() === false ? (
         <CollapsedRightControlBar
-          injectJs={injectJs}
+          isScriptEnabled={isScriptEnabled}
+          toggleScript={toggleScript}
           isWideViewActive={isWideViewActive}
           switchWideView={switchIsWideView}
           switchIsCollapsed={switchIsRightCollapsed}
         />
       ) : (
         <RightControlBar
+          currentlySelectedElement={currentlySelectedElement}
+          cssProperties={renderFile.files.css}
+          toggleScript={toggleScript}
+          isScriptEnabled={isScriptEnabled}
           isWideViewActive={isWideViewActive}
           switchWideView={switchIsWideView}
           switchIsCollapsed={switchIsRightCollapsed}

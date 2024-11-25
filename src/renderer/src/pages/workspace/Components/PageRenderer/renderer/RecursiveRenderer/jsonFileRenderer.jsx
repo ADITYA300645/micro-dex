@@ -53,10 +53,10 @@ export default function jsonObjectRenderer(node) {
     for (const attr of node.attrs) {
       attrs[attr.name] = attr.value
       if (attr.name === 'class') {
-        console.log('class for', node.tagName)
+        // console.log('class for', node.tagName)
         isClassPresent = true
         attrs[attr.name] = attr.value + ' ' + `${node.tagName}`
-        console.log('now it is ', attrs[attr.name])
+        // console.log('now it is ', attrs[attr.name])
       }
     }
     if (isClassPresent === false) {

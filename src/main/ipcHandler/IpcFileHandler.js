@@ -37,7 +37,6 @@ function registerIpcFileControls() {
 
   ipcMain.on('readMainFile', async (event, rootPath) => {
     try {
-      console.log()
       const sarthiRoot = path.join(rootPath, '.sarthi/project-structure')
       const controlFolder = await fs.readdir(sarthiRoot)
       const rootFolder = await fs.readdir(rootPath)

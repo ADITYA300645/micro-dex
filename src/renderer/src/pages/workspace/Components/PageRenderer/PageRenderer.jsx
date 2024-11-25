@@ -1,5 +1,5 @@
 import { createMutable } from 'solid-js/store'
-import { onMount, onCleanup, createSignal } from 'solid-js'
+import { onMount, onCleanup, createSignal, Show } from 'solid-js'
 import convertCssJsonToString from './renderer/RecursiveRenderer/CssJsonInputer'
 import jsonObjectRenderer from './renderer/RecursiveRenderer/jsonFileRenderer'
 
@@ -76,6 +76,7 @@ export const PageRenderer = (props) => {
   }
 
   onMount(() => {
+    console.log('MOUNTED')
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
   })
@@ -83,23 +84,68 @@ export const PageRenderer = (props) => {
   onCleanup(() => {
     window.removeEventListener('mousemove', handleMouseMove)
     window.removeEventListener('mouseup', handleMouseUp)
+    console.log('CLEANED')
   })
 
+  const [hoveredElement, setHoveredElement] = createSignal(null)
+
+  function handleClick(event){
+    if (props.currentlySelectedElement()) {
+      props.currentlySelectedElement().style.outline = ''
+    }
+    const elementUnder = document.elementFromPoint(event.x, event.y)
+    props.setCurrentlySelectedElement(elementUnder)
+    if (props.currentlySelectedElement()) {
+      props.currentlySelectedElement().style.outline = '1px dashed #888888'
+    }
+  }
+
+  // const handleMouseOver = (event) => {
+  //   const element = document.elementFromPoint(event.clientX, event.clientY)
+  //   const selectedElement = props.currentlySelectedElement()
+  //   if (element) {
+  //     setHoveredElement(element)
+  //     if (element !== selectedElement) {
+  //       element.style.transition = 'outline 0.3s ease'
+  //       element.style.outline = '1px dotted #000'
+  //     }
+  //   }
+  // }
+  //
+  // const handleMouseOut = () => {
+  //   const element = hoveredElement()
+  //   const selectedElement = props.currentlySelectedElement()
+  //
+  //   if (element) {
+  //     if (element !== selectedElement) {
+  //       element.style.transition = 'outline 0.3s ease'
+  //       element.style.outline = ''
+  //     }
+  //     setHoveredElement(null)
+  //   }
+  // }
+
   return (
-    <div>
-      {props.isWideView() ? (
+    <div class="">
+      <Show when={props.isWideView()}>
         <div>
-          <div class="overflow-auto min-h-screen h-screen dark:text-black">
-            {/*  Insert the renderer here*/}
+          <div
+            class="overflow-auto min-h-screen h-screen dark:text-black"
+            // onMouseOver={handleMouseOver}
+            // onMouseOut={handleMouseOut}
+
+            onClick={handleClick}
+          >
             <style>
               {typeof props.files.css === 'string'
                 ? props.files.css
                 : convertCssJsonToString(props.files.css)}
             </style>
-            {jsonObjectRenderer(props.files.html)}
+            <div class="applicationWrapper">{jsonObjectRenderer(props.files.html)}</div>
           </div>
         </div>
-      ) : (
+      </Show>
+      <Show when={!props.isWideView()}>
         <div class="flex justify-center items-center h-[93vh]">
           <div>
             <div class="flex justify-center items-center mt-4">
@@ -113,21 +159,19 @@ export const PageRenderer = (props) => {
               </div>
 
               <div
-                ref={props.windowRef}
                 class="rounded-xl border-[1px] dark:border-[#444] border-[#aaa] mx-[6px] relative overflow-auto bg-white dark:bg-black dark:text-black"
+                onClick={handleClick}
                 style={{
                   width: `${props.windowWidth}px`,
                   height: `${props.windowHeight}px`
                 }}
               >
-                {/*Renderer Goes here*/}
-                <script>{props.files.js}</script>
                 <style>
                   {typeof props.files.css === 'string'
                     ? props.files.css
                     : convertCssJsonToString(props.files.css)}
                 </style>
-                {jsonObjectRenderer(props.files.html)}
+                <div class="applicationWrapper">{jsonObjectRenderer(props.files.html)}</div>
               </div>
 
               <div
@@ -149,7 +193,7 @@ export const PageRenderer = (props) => {
             </div>
           </div>
         </div>
-      )}
+      </Show>
     </div>
   )
 }
