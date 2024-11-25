@@ -63,6 +63,17 @@ export const ValuesRenderer = (props) => {
       return
     }
 
+    // 2. Check and modify ID-based properties
+    if (element.id) {
+      const idKey = `#${element.id}`
+      if (!cssProperties[idKey]) {
+        cssProperties[idKey] = {} // Create new ID entry if it doesn't exist
+      }
+      cssProperties[idKey][property] = value
+      props.onCssPropertiesChange?.(cssProperties)
+      return
+    }
+
     // 1. Check and modify class-based properties
     if (element.className) {
       let classHandled = false
@@ -81,16 +92,7 @@ export const ValuesRenderer = (props) => {
       }
     }
 
-    // 2. Check and modify ID-based properties
-    else if (element.id) {
-      const idKey = `#${element.id}`
-      if (!cssProperties[idKey]) {
-        cssProperties[idKey] = {} // Create new ID entry if it doesn't exist
-      }
-      cssProperties[idKey][property] = value
-      props.onCssPropertiesChange?.(cssProperties)
-      return
-    }
+
 
     // 3. Check and modify tag-based properties
     const tagName = element.tagName.toLowerCase()

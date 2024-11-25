@@ -1,29 +1,28 @@
-import { createMemo, For, Show } from 'solid-js'
+import {createMemo, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import CSSAlignment from './PropertiesComponents/CSSAlignment'
-import DimensionsControl from './PropertiesComponents/DimensionsControl' // Assuming you have this component
+import DimensionsControl from './PropertiesComponents/DimensionsControl'
 
 const DeclaredCssControl = (props) => {
-
-
-
+  // Define mappings for grouped and single controls
   const propertyPairs = {
     dimensions: {
       properties: ['height', 'width'],
       component: DimensionsControl
     }
-    // Add other pairs as needed
   }
 
   const singleControls = {
-    align: CSSAlignment
+    'align-items': CSSAlignment // Ensure this matches the props key
   }
 
+  // Define categories for organizing controls
   const categories = {
-    Layout: ['dimensions', 'align'],
-    Appearance: ['background', 'color'] // Example; modify as needed
+    Layout: ['dimensions', 'align-items'],
+    Appearance: ['background', 'color'] // Modify as needed
   }
 
+  // Categorize controls dynamically based on props.properties
   const categorizedControls = createMemo(() => {
     const processedProperties = new Set()
     const categoryMap = {}
@@ -35,6 +34,7 @@ const DeclaredCssControl = (props) => {
         if (processedProperties.has(key)) return
 
         if (propertyPairs[key]) {
+          // Handle grouped properties (e.g., dimensions)
           const pairValues = {}
           propertyPairs[key].properties.forEach((prop) => {
             pairValues[prop] = props.properties[prop]
@@ -47,7 +47,8 @@ const DeclaredCssControl = (props) => {
             component: propertyPairs[key].component,
             values: pairValues
           })
-        } else if (singleControls[key]) {
+        } else if (singleControls[key] && key in props.properties) {
+          // Handle single controls with validation from props.properties
           categoryMap[category].push({
             type: 'single',
             property: key,
@@ -62,7 +63,9 @@ const DeclaredCssControl = (props) => {
     return categoryMap
   })
 
+  // Handlers for updating properties
   const handleChange = (property, newValue) => {
+    console.log(property, newValue)
     props.onChange?.(property, newValue)
   }
 
@@ -72,6 +75,7 @@ const DeclaredCssControl = (props) => {
     })
   }
 
+  // Render the categorized controls
   return (
     <div class="space-y-4">
       <For each={Object.entries(categorizedControls())}>
@@ -84,27 +88,23 @@ const DeclaredCssControl = (props) => {
               </div>
               {/* Render Controls */}
               <For each={controls}>
-                {(entry) => {
-                  if (entry.type === 'pair') {
-                    return (
+                {(entry) =>
+                  entry.type === 'pair' ? (
+                    <Dynamic
+                      component={entry.component}
+                      values={entry.values}
+                      onChange={handlePairChange}
+                    />
+                  ) : (
+                    <div>
                       <Dynamic
                         component={entry.component}
-                        values={entry.values}
-                        onChange={handlePairChange}
+                        value={entry.value}
+                        onChange={[handleChange, entry.property]}
                       />
-                    )
-                  } else {
-                    return (
-                      <div>
-                        <Dynamic
-                          component={entry.component}
-                          value={entry.value}
-                          onChange={[handleChange, entry.property]}
-                        />
-                      </div>
-                    )
-                  }
-                }}
+                    </div>
+                  )
+                }
               </For>
             </div>
           </Show>
