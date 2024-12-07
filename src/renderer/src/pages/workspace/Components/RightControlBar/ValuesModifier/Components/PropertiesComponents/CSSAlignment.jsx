@@ -21,7 +21,7 @@ const CSSAlignment = (props) => {
 
   return (
     <div class="flex items-center space-x-2 my-3">
-      <label class="text-gray-700 dark:text-gray-400 text-sm font-medium">Align Vertical</label>
+      <label class="text-gray-700 dark:text-gray-400 text-sm font-medium">Align Horizontal</label>
 
       {/* Alignment Options */}
       <div class="flex space-x-1">

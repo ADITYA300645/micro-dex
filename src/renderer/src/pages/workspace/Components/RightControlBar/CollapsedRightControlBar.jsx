@@ -10,7 +10,7 @@ function CollapsedRightControlBar({ switchIsCollapsed,toggleScript, isWideViewAc
   return (
     <div
       use:draggable={{ bounds: 'body' }}
-      class="fixed top-8 right-0 mx-2 my-3 rounded w-96 py-2 px-4 dark:bg-[#141414] hover:bg-[#ccc] dark:hover:bg-[#424242] bg-[#fff] hover:cursor-move transition-colors"
+      class="fixed z-10 top-8 right-0 mx-2 my-3 rounded w-96 py-2 px-4 dark:bg-[#141414] hover:bg-[#ccc] dark:hover:bg-[#424242] bg-[#fff] hover:cursor-move transition-colors"
     >
       <div class="flex space-x-2 justify-between items-center">
         <div class="justify-center items-center flex">

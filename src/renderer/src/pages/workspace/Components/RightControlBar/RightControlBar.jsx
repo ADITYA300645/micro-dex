@@ -40,7 +40,7 @@ export default function RightControlBar(props) {
 
   return (
     <div
-      class="fixed top-8 right-0 mx-2 my-3 rounded h-[93vh] py-2 px-4 dark:bg-[#141414] bg-[#fff]"
+      class="fixed top-8 right-0 z-10 mx-2 my-3 rounded h-[93vh] py-2 px-4 dark:bg-[#141414] bg-[#fff]"
       style={{ width: `${width()}px` }}
     >
       {/* Resizer on the left */}

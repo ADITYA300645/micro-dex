@@ -19,12 +19,15 @@ if (process.contextIsolated) {
   window.api = api
 }
 
-// custom declarations
-
 contextBridge.exposeInMainWorld('versions', {
   node: () => process.versions.node,
   chrome: () => process.versions.chrome,
   electron: () => process.versions.electron
+})
+
+contextBridge.exposeInMainWorld('API', {
+  ai_key: () => import.meta.env.VITE_AI_KEY,
+  oppen_session_key: () => import.meta.env.VITE_AI_OPEN_SESSION_KEY
 })
 
 contextBridge.exposeInMainWorld('windowSizeControler', {
@@ -45,4 +48,11 @@ contextBridge.exposeInMainWorld('fileHandler', {
   readMainFile: (rootPath) => ipcRenderer.sendSync('readMainFile', rootPath),
   readMainFilePaths: (rootPath) => ipcRenderer.sendSync('readMainFilePaths', rootPath),
   readFile: (filePath) => ipcRenderer.invoke('readFile', filePath)
+})
+
+contextBridge.exposeInMainWorld('componentHandler', {
+  addComponent: (html, css, name) => ipcRenderer.invoke('addComponent', html, css, name),
+  updateComponent: (html, css, name) => ipcRenderer.invoke('updateComponent', html, css, name),
+  deleteComponent: (name) => ipcRenderer.invoke('deleteComponent', name),
+  getComponents: () => ipcRenderer.invoke('getComponents')
 })

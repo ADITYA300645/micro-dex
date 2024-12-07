@@ -37,7 +37,7 @@ function LeftControlBar(props) {
 
   return (
     <div
-      class={`fixed top-8 left-0 mx-2 my-3 z-10 rounded h-[93vh] py-2 px-4 dark:bg-[#141414] bg-[#fff]`}
+      class={`fixed  top-8 left-0 mx-2 my-3 z-20 rounded h-[93vh] py-2 px-4 dark:bg-[#141414] bg-[#fff]`}
       style={{ width: `${width()}px` }}
     >
       <div class="flex space-x-2 mb-3 justify-between items-center">
@@ -66,7 +66,10 @@ function LeftControlBar(props) {
       </div>
 
       <div class="border-t overflow-auto max-h-[86vh] border-gray-300 dark:border-gray-600 mt-2 pt-2 noscrollbar">
-        <Show when={activeTab() === 'Files'} fallback={<CurrentFileComponentsStructure />}>
+        <Show
+          when={activeTab() === 'Files'}
+          fallback={<CurrentFileComponentsStructure parentWidth={width} />}
+        >
           <ProjectFilesStructure />
         </Show>
       </div>

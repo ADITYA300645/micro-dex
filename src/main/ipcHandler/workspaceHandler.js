@@ -1,25 +1,27 @@
 import { ipcMain, dialog } from 'electron'
 import ProjectInitializer from '../controllers/project-initializer/projectInitializer'
+import registerIpcComponentsController from './ipcComponentHandler'
 
-function regesterWorkspaceHandler() {
+function registerWorkspaceHandler() {
+  global.currentWorkspacePath = null
   ipcMain.on('openNewProject', async (event) => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openDirectory']
     })
-
     if (!canceled && filePaths.length > 0) {
       const folderPath = filePaths[0]
+      global.currentWorkspacePath = folderPath
       new ProjectInitializer(folderPath)
+      registerIpcComponentsController(folderPath)
       event.returnValue = folderPath
       return
     }
     event.returnValue = ''
-    return
   })
 
   ipcMain.on('getCurrentWorkSpace', (event) => {
-    event.returnValue = 'SOME VALUES'
+    event.returnValue = global.currentWorkspacePath || ''
   })
 }
 
-export default regesterWorkspaceHandler
+export default registerWorkspaceHandler

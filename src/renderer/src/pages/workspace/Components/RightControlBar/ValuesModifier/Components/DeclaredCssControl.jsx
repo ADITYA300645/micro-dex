@@ -13,12 +13,12 @@ const DeclaredCssControl = (props) => {
   }
 
   const singleControls = {
-    'align-items': CSSAlignment // Ensure this matches the props key
+    'justify-content': CSSAlignment // Ensure this matches the props key
   }
 
   // Define categories for organizing controls
   const categories = {
-    Layout: ['dimensions', 'align-items'],
+    Layout: ['dimensions', 'justify-content'],
     Appearance: ['background', 'color'] // Modify as needed
   }
 
@@ -65,7 +65,6 @@ const DeclaredCssControl = (props) => {
 
   // Handlers for updating properties
   const handleChange = (property, newValue) => {
-    console.log(property, newValue)
     props.onChange?.(property, newValue)
   }
 

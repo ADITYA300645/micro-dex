@@ -24,6 +24,7 @@
     "@solidjs/router": "^0.15.1",
     "electron-updater": "^6.1.7",
     "lucide-solid": "^0.456.0",
+    "marked": "^15.0.3",
     "parse5": "^7.2.1",
     "solid-icons": "^1.1.0"
   },

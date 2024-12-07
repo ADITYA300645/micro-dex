@@ -38,18 +38,18 @@ export default class FilesSerializer {
           }
 
           if (FilesSerializer.hasExtension(entry.name, '.css')) {
-            console.log(`Found CSS file: ${entry.name}`)
+            // console.log(`Found CSS file: ${entry.name}`)
             const cssPath = path.join(this.folderPath, entry.name)
             var cssManager = new CSSManager(
               cssPath,
               path.join(this.destination, `${entry.name}.json`)
             )
             // this.serializeCss(fullPath);
-            cssManager.parseCssToJson() // Reading from Css
+            cssManager.parseCssToJson()
           }
 
           if (FilesSerializer.hasExtension(entry.name, '.js')) {
-            console.log(`Found JS file: ${entry.name}`)
+            // console.log(`Found JS file: ${entry.name}`)
             // TODO: Call JS serialization method here
             // this.serializeJs(fullPath);
           }

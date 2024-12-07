@@ -7,6 +7,9 @@ import CollapsedLeftControllBar from './Components/LeftControlBar/CollapsedLeftC
 import CollapsedRightControlBar from './Components/RightControlBar/CollapsedRightControlBar'
 import { PageRenderer } from './Components/PageRenderer/PageRenderer'
 import { createMutable } from 'solid-js/store'
+import BottomControlBar from './Components/BottomControlBar/BottomControlBar'
+import ComponentStoreWindow from './Components/ComponentStore/ComponentStore'
+import { AiComponentWriter } from './Components/AiComponentWriter/AiComponentwriter'
 
 function Workspace() {
   const location = useLocation()
@@ -26,10 +29,21 @@ function Workspace() {
 
   const [currentlySelectedElement, setCurrentlySelectedElement] = createSignal(null)
 
+  const [isCreateComponenVisible, setIsCreateComponentVisible] = createSignal(false)
+  const [isAiComponentWriterVisible, setIsAiComponentWriterVisible] = createSignal(false)
+
   function switchIsWideView() {
     // console.log(isWideViewActive())
     setIsScriptEnabled(false)
     setIsWideViewActive((isWideView) => !isWideView)
+  }
+
+  function switchIsCreateComponenVisible() {
+    setIsCreateComponentVisible((prev) => !prev)
+  }
+
+  function switchIsAiComponentWriterVisible() {
+    setIsAiComponentWriterVisible((prev) => !prev)
   }
 
   function switchIsLeftCollapsed() {
@@ -89,6 +103,16 @@ function Workspace() {
       ) : (
         <LeftControlBar isCollapsed={isLeftCollapsed} switchIsCollapsed={switchIsLeftCollapsed} />
       )}
+      {isCreateComponenVisible() === true ? (
+        <ComponentStoreWindow switchIsCreateComponenVisible={switchIsCreateComponenVisible} />
+      ) : (
+        <></>
+      )}
+      {isAiComponentWriterVisible() === true ? (
+        <AiComponentWriter switchIsAiComponentWriterVisible={switchIsAiComponentWriterVisible} />
+      ) : (
+        <></>
+      )}
       <PageRenderer
         currentlySelectedElement={currentlySelectedElement}
         setCurrentlySelectedElement={setCurrentlySelectedElement}
@@ -99,7 +123,11 @@ function Workspace() {
         windowWidth={renderWindowWidth()}
         windowHeight={renderWindowHeight()}
       />
-
+      <BottomControlBar
+        isCreateComponenVisible={isCreateComponenVisible}
+        switchIsAiComponentWriterVisible={switchIsAiComponentWriterVisible}
+        switchIsCreateComponenVisible={switchIsCreateComponenVisible}
+      />
       {isRightCollapsed() === false ? (
         <CollapsedRightControlBar
           isScriptEnabled={isScriptEnabled}
