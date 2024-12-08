@@ -8,6 +8,7 @@ export default class HTMLSerializer {
     this.outputFilePath = destination
   }
 
+  // Remove circular references during JSON serialization
   static removeCircularReferences() {
     const seen = new Set()
     return (key, value) => {
@@ -21,42 +22,29 @@ export default class HTMLSerializer {
     }
   }
 
-  static serializeHtmlStructure(node, level = 0) {
-    if (!node || node.nodeName === '#text') return
-    if (node.attrs) {
-      if (!Array.isArray(node.attrs)) {
-        node.attrs = Object.entries(node.attrs).map(([name, value]) => ({ name, value }))
-      }
-      const sIdAttr = node.attrs.find((attr) => attr.name === 's_id')
-      if (!sIdAttr) {
-        node.attrs.push({ name: 's_id', value: `${level}.0` })
-      }
-    } else {
-      node.attrs = [{ name: 's_id', value: `${level}.0` }]
+  // Recursively serialize the HTML structure and populate `s_id`s
+  static serializeHtmlStructure(node, parentSId = '1', idx = 0) {
+    if (!node) return
+
+    if (!node.attrs) node.attrs = []
+    if (!node.s_id) node.s_id = `${parentSId}.${idx + 1}`
+    const existingSId = node.attrs.find((attr) => attr.name === 's_id')
+    if (!existingSId) {
+      node.attrs.push({ name: 's_id', value: `${parentSId}.${idx + 1}` })
     }
+
     if (node.childNodes && Array.isArray(node.childNodes)) {
-      let nonTextNodeIndex = 0
-      node.childNodes.forEach((child) => {
-        if (child.nodeName !== '#text') {
-          if (child.attrs) {
-            if (!Array.isArray(child.attrs)) {
-              child.attrs = Object.entries(child.attrs).map(([name, value]) => ({ name, value }))
-            }
-            const sIdAttr = child.attrs.find((attr) => attr.name === 's_id')
-            if (!sIdAttr) {
-              child.attrs.push({ name: 's_id', value: `${level + 1}.${nonTextNodeIndex}` })
-            }
-          } else {
-            child.attrs = [{ name: 's_id', value: `${level + 1}.${nonTextNodeIndex}` }]
-          }
-          nonTextNodeIndex++
-        }
-        HTMLSerializer.serializeHtmlStructure(child, level + 1)
+      let nonTextNodeIndex = 1
+      node.childNodes.forEach((child, idx) => {
+        HTMLSerializer.serializeHtmlStructure(child, `${parentSId}.${nonTextNodeIndex}`, idx)
+        nonTextNodeIndex++
       })
     }
+
     return node
   }
 
+  // Read HTML from file
   async readHtmlFile() {
     try {
       return await fs.readFile(this.filePath, 'utf-8')
@@ -66,16 +54,18 @@ export default class HTMLSerializer {
     }
   }
 
+  // Ensure output directory exists
   async ensureOutputDirectory() {
-    const directory = path.dirname(this.outputFilePath) // Get the parent directory
+    const directory = path.dirname(this.outputFilePath)
     try {
-      await fs.mkdir(directory, { recursive: true }) // Ensure the directory exists
+      await fs.mkdir(directory, { recursive: true })
     } catch (error) {
       console.error(`Error creating directory: ${directory}`, error)
       throw error
     }
   }
 
+  // Write JSON to file
   async writeJsonFile(jsonData) {
     try {
       await fs.writeFile(this.outputFilePath, jsonData, 'utf-8')
@@ -85,6 +75,38 @@ export default class HTMLSerializer {
     }
   }
 
+  // Insert a node into the structure
+  static insertNode(parentNode, newNode, prevSId = null, nextSId = null) {
+    if (!parentNode.childNodes) parentNode.childNodes = []
+
+    // Calculate new `s_id`
+    const computeFractionalSId = (prev, next) => {
+      const getHashValue = (id) => parseInt(id.split('#').pop() || '0', 10)
+      const base = prev.split('.').slice(0, -1).join('.')
+      const prevHash = getHashValue(prev)
+      const nextHash = next ? getHashValue(next) : 100
+      return `${base}#${Math.floor((prevHash + nextHash) / 2)}`
+    }
+
+    const newSId = computeFractionalSId(prevSId, nextSId)
+    newNode.attrs.push({ name: 's_id', value: newSId })
+
+    // Insert node in appropriate position
+    if (!nextSId) {
+      parentNode.childNodes.push(newNode)
+    } else {
+      const index = parentNode.childNodes.findIndex((child) =>
+        child.attrs?.find((attr) => attr.name === 's_id' && attr.value === nextSId)
+      )
+      if (index === -1) {
+        parentNode.childNodes.push(newNode) // Append if nextSId is not found
+      } else {
+        parentNode.childNodes.splice(index, 0, newNode)
+      }
+    }
+  }
+
+  // Serialize HTML to JSON file
   async serializeHtmlToJson() {
     try {
       await this.ensureOutputDirectory()

@@ -101,7 +101,7 @@ function Workspace() {
           switchIsLeftCollapsed={switchIsLeftCollapsed}
         />
       ) : (
-        <LeftControlBar isCollapsed={isLeftCollapsed} switchIsCollapsed={switchIsLeftCollapsed} />
+        <LeftControlBar renderFile={renderFile} isCollapsed={isLeftCollapsed} switchIsCollapsed={switchIsLeftCollapsed} />
       )}
       {isCreateComponenVisible() === true ? (
         <ComponentStoreWindow switchIsCreateComponenVisible={switchIsCreateComponenVisible} />

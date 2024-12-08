@@ -5,11 +5,63 @@ import convertCssJsonToStringComponent from './FileComponentRenderers/componentC
 function CurrentFileComponentsStructure(props) {
   const [components, setComponents] = createSignal([])
   const [lastElement, setLastElement] = createSignal(null)
+  const [draggedComponent, setDraggedComponent] = createSignal(null)
 
   onMount(async () => {
     const comp = await window.componentHandler.getComponents()
     setComponents(comp.components || [])
   })
+
+  function combineCssObjects(css1, css2) {
+    const mergedCss = { ...css1 }
+
+    for (const [key, value] of Object.entries(css2)) {
+      if (key in mergedCss) {
+        if (typeof value === 'object' && !Array.isArray(value)) {
+          mergedCss[key] = { ...mergedCss[key], ...value }
+        } else {
+          throw new Error(`Conflict with non-object value for key: ${key}`)
+        }
+      } else {
+        mergedCss[key] = value
+      }
+    }
+
+    return mergedCss
+  }
+
+  function insertToObject(s_id) {
+    console.log(s_id)
+
+    if (!s_id || typeof s_id.value !== 'string') {
+      throw new Error('Invalid s_id: Expected a valid object with a string "value" property')
+    }
+
+    const keys = s_id.value.split('.').map((item) => parseInt(item, 10))
+
+    let currentNode = props.renderFile.files.html
+
+    for (let i = 1; i < keys.length - 1; i++) {
+      if (!currentNode.childNodes || !Array.isArray(currentNode.childNodes)) {
+        throw new Error(`Invalid s_id: No childNodes found at level ${i}`)
+      }
+
+      const childIndex = keys[i] - 1
+      const nextNode = currentNode.childNodes[childIndex]
+
+      if (!nextNode) {
+        throw new Error(`Invalid s_id: Node not found at index ${keys[i]} (level ${i})`)
+      }
+
+      currentNode = nextNode
+    }
+    currentNode.childNodes.push(draggedComponent().html)
+
+    const draggedCss = draggedComponent().css
+    const cssRules = props.renderFile.files.css
+
+    props.renderFile.files.css = combineCssObjects(cssRules, draggedCss)
+  }
 
   return (
     <div class="component-wrapper">
@@ -23,6 +75,7 @@ function CurrentFileComponentsStructure(props) {
               "
             draggable={true}
             onDrag={(event) => {
+              setDraggedComponent(component)
               const elementUnder = document.elementFromPoint(event.x, event.y)
 
               if (lastElement() && elementUnder !== lastElement()) {
@@ -38,7 +91,14 @@ function CurrentFileComponentsStructure(props) {
                 lastElement().style.outline = 'none'
                 setLastElement(null)
               }
-              console.log(document.elementFromPoint(event.x, event.y))
+
+              var s_id = document.elementFromPoint(event.x, event.y).attributes['s_id']
+              // console.log(document.elementFromPoint(event.x, event.y))
+
+              insertToObject(s_id)
+
+              setDraggedComponent(null)
+              console.log()
             }}
             style={{ width: `${props.parentWidth() - 35}px` }}
           >
