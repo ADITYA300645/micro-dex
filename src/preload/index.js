@@ -47,7 +47,9 @@ contextBridge.exposeInMainWorld('fileHandler', {
   readFolder: (dirPath) => ipcRenderer.invoke('readFolder', dirPath),
   readMainFile: (rootPath) => ipcRenderer.sendSync('readMainFile', rootPath),
   readMainFilePaths: (rootPath) => ipcRenderer.sendSync('readMainFilePaths', rootPath),
-  readFile: (filePath) => ipcRenderer.invoke('readFile', filePath)
+  readFile: (filePath) => ipcRenderer.invoke('readFile', filePath),
+  saveProject: (html, htmlPath, css, cssPath) =>
+    ipcRenderer.sendSync('saveProject', html, htmlPath, css, cssPath)
 })
 
 contextBridge.exposeInMainWorld('componentHandler', {

@@ -87,9 +87,7 @@ export const PageRenderer = (props) => {
     console.log('CLEANED')
   })
 
-  const [hoveredElement, setHoveredElement] = createSignal(null)
-
-  function handleClick(event){
+  function handleClick(event) {
     if (props.currentlySelectedElement()) {
       props.currentlySelectedElement().style.outline = ''
     }
@@ -100,30 +98,6 @@ export const PageRenderer = (props) => {
     }
   }
 
-  // const handleMouseOver = (event) => {
-  //   const element = document.elementFromPoint(event.clientX, event.clientY)
-  //   const selectedElement = props.currentlySelectedElement()
-  //   if (element) {
-  //     setHoveredElement(element)
-  //     if (element !== selectedElement) {
-  //       element.style.transition = 'outline 0.3s ease'
-  //       element.style.outline = '1px dotted #000'
-  //     }
-  //   }
-  // }
-  //
-  // const handleMouseOut = () => {
-  //   const element = hoveredElement()
-  //   const selectedElement = props.currentlySelectedElement()
-  //
-  //   if (element) {
-  //     if (element !== selectedElement) {
-  //       element.style.transition = 'outline 0.3s ease'
-  //       element.style.outline = ''
-  //     }
-  //     setHoveredElement(null)
-  //   }
-  // }
 
   return (
     <div class="">

@@ -1,3 +1,6 @@
+import CSSManager from '../controllers/file-serialization/css-serializer/cssSerializer'
+import HTMLSerializer from '../controllers/file-serialization/html-serializer/htmlSerializer'
+
 const { ipcMain } = require('electron')
 const fs = require('fs/promises')
 const path = require('path')
@@ -42,10 +45,11 @@ function registerIpcFileControls() {
       const rootFolder = await fs.readdir(rootPath)
 
       let files = {}
+      let fileNames = {}
 
       for (const entry in rootFolder) {
         if (rootFolder[entry].endsWith('.js')) {
-          const content = await fs.readFile(path.join(rootPath,rootFolder[entry]))
+          const content = await fs.readFile(path.join(rootPath, rootFolder[entry]))
           files['js'] = content.toString()
         }
       }
@@ -56,15 +60,21 @@ function registerIpcFileControls() {
             path.join(rootPath, '.sarthi/project-structure', controlFolder[entry])
           )
           files['html'] = JSON.parse(content.toString())
+          var htmlFileNameParts = controlFolder[entry].split('.')
+          htmlFileNameParts.pop()
+          fileNames['html'] = path.join(rootPath, htmlFileNameParts.join('.'))
         }
         if (controlFolder[entry].endsWith('.css.json')) {
           const content = await fs.readFile(
             path.join(rootPath, '.sarthi/project-structure', controlFolder[entry])
           )
           files['css'] = JSON.parse(content.toString())
+          var cssFileNameParts = controlFolder[entry].split('.')
+          cssFileNameParts.pop()
+          fileNames['css'] = path.join(rootPath, cssFileNameParts.join('.'))
         }
       }
-      event.returnValue = files
+      event.returnValue = { files: files, fileNames: fileNames }
     } catch (e) {
       console.log(e)
     }
@@ -88,6 +98,19 @@ function registerIpcFileControls() {
         }
       }
       event.returnValue = files
+    } catch (e) {
+      console.log(e)
+    }
+  })
+
+  ipcMain.on('saveProject', (event, html, htmlPath, css, cssPath) => {
+    try {
+      // console.log(html, htmlPath, css, cssPath)
+      var htmlString = HTMLSerializer.jsonToHtml(html)
+      fs.writeFile(htmlPath, htmlString)
+      var cssString = CSSManager.serializeRules(JSON.parse(css))
+      fs.writeFile(cssPath, cssString)
+      event.returnValue = 'Done !!'
     } catch (e) {
       console.log(e)
     }

@@ -83,6 +83,9 @@ export default class ProjectComponentsHandler {
     ) {
       node.tagName = 'div' // Change the tagName to div
       node.nodeName = 'div' // Update the nodeName to div
+      delete node.mode
+      node.attrs = []
+      node.namespaceURI = 'http://www.w3.org/1999/xhtml'
     }
 
     // Process child nodes recursively

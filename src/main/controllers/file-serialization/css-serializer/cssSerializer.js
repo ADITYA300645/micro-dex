@@ -58,28 +58,32 @@ export default class CSSManager {
   /**
    * Recursively serializes JSON back into CSS.
    * @param {Object} cssJson - JSON representation of CSS.
+   * @param {number} indentLevel - Current indentation level for formatting.
    * @returns {string} - CSS as a string.
    */
-  serializeRules(cssJson) {
+  static serializeRules(cssJson, indentLevel = 0) {
+    const indent = '  '.repeat(indentLevel) // Use two spaces per indentation level
     let cssString = ''
 
     for (const key in cssJson) {
       if (key.startsWith('@')) {
-        // Handle at-rules (media queries, etc.)
-        cssString += `${key} {\n${this.serializeRules(cssJson[key])}}\n`
-      } else {
+        // Handle at-rules (e.g., @media, @keyframes)
+        cssString += `${indent}${key} {\n`
+        cssString += CSSManager.serializeRules(cssJson[key], indentLevel + 1)
+        cssString += `${indent}}\n`
+      } else if (typeof cssJson[key] === 'object') {
         // Handle regular rules
-        cssString += `${key} {\n`
+        cssString += `${indent}${key} {\n`
         const properties = cssJson[key]
         for (const prop in properties) {
           if (typeof properties[prop] === 'object') {
-            // Handle nested rules
-            cssString += this.serializeRules({ [prop]: properties[prop] })
+            // Nested rules
+            cssString += CSSManager.serializeRules({ [prop]: properties[prop] }, indentLevel + 1)
           } else {
-            cssString += `  ${prop}: ${properties[prop]};\n`
+            cssString += `${indent}  ${prop}: ${properties[prop]};\n`
           }
         }
-        cssString += `}\n`
+        cssString += `${indent}}\n`
       }
     }
 
@@ -127,7 +131,7 @@ export default class CSSManager {
    * Serializes the JSON representation back into a CSS string and writes it to the CSS file.
    */
   serializeJsonToCss() {
-    const cssString = this.serializeRules(this.cssJson)
+    const cssString = CSSManager.serializeRules(this.cssJson)
     fs.writeFileSync(this.cssPath, cssString, 'utf8')
   }
 }

@@ -19,6 +19,27 @@ function isSolidRenderableTag(tag) {
   return !RESTRICTED_TAGS.has(tag)
 }
 
+function isHTag(tag) {
+  const H_TAG = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+  if (H_TAG.has(tag)) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function hTagSize(tag) {
+  const H_Tag = {
+    h1: 'text-3xl',
+    h2: 'text-2xl',
+    h3: 'text-xl',
+    h4: 'text-lg',
+    h5: 'text-md',
+    h6: 'text-base'
+  }
+  return H_Tag[tag]
+}
+
 function shouldNotRenderTag(tag) {
   const IGNORED_TAGS = new Set(['head', 'title', 'meta'])
   return IGNORED_TAGS.has(tag)
@@ -49,6 +70,15 @@ export default function jsonComponentRenderer(node) {
     return (
       <div>
         <For each={node.childNodes || []}>{(child) => jsonComponentRenderer(child)}</For>
+      </div>
+    )
+  }
+
+
+  if (isHTag(node.tagName)) {
+    return (
+      <div ref={self} {...attrs} class={`${hTagSize(node.tagName)} font-semibold py-1 text-black`}>
+        <For each={node.childNodes}>{(child) => jsonComponentRenderer(child)}</For>
       </div>
     )
   }

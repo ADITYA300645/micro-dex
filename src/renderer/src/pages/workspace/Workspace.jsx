@@ -2,7 +2,7 @@ import { useLocation } from '@solidjs/router'
 import WindowControlRibbon from '../../components/WindowControlRibbon/WindowControlRibbon'
 import LeftControlBar from './Components/LeftControlBar/LeftControlBar'
 import RightControlBar from './Components/RightControlBar/RightControlBar'
-import { createSignal } from 'solid-js'
+import { createSignal, onMount } from 'solid-js'
 import CollapsedLeftControllBar from './Components/LeftControlBar/CollapsedLeftControllBar'
 import CollapsedRightControlBar from './Components/RightControlBar/CollapsedRightControlBar'
 import { PageRenderer } from './Components/PageRenderer/PageRenderer'
@@ -32,6 +32,8 @@ function Workspace() {
   const [isCreateComponenVisible, setIsCreateComponentVisible] = createSignal(false)
   const [isAiComponentWriterVisible, setIsAiComponentWriterVisible] = createSignal(false)
 
+  const historyStack = createMutable([])
+
   function switchIsWideView() {
     // console.log(isWideViewActive())
     setIsScriptEnabled(false)
@@ -55,7 +57,7 @@ function Workspace() {
   }
 
   var filesData = window.fileHandler.readMainFile(location.state.path)
-  renderFile.files = filesData
+  renderFile.files = filesData.files
 
   const injectScript = () => {
     if (!isScriptEnabled()) {
@@ -92,6 +94,82 @@ function Workspace() {
     }
   }
 
+  function deleteElement(s_id) {
+    historyStack.push(JSON.parse(JSON.stringify(renderFile.files)))
+
+    if (!s_id || typeof s_id.value !== 'string') {
+      throw new Error('Invalid s_id: Expected a valid object with a string "value" property')
+    }
+
+    const keys = s_id.value.split('.').map((item) => parseInt(item, 10))
+
+    let currentNode = renderFile.files.html
+
+    for (let i = 1; i < keys.length - 1; i++) {
+      if (!currentNode.childNodes || !Array.isArray(currentNode.childNodes)) {
+        throw new Error(`Invalid s_id: No childNodes found at level ${i}`)
+      }
+
+      const childIndex = keys[i] - 1
+      const nextNode = currentNode.childNodes[childIndex]
+
+      if (!nextNode) {
+        throw new Error(`Invalid s_id: Node not found at index ${keys[i]} (level ${i})`)
+      }
+
+      currentNode = nextNode
+    }
+
+    currentNode.childNodes = []
+  }
+
+  function undoDelete() {
+    if (historyStack.length === 0) {
+      console.warn('No actions to undo.')
+      return
+    }
+
+    const previousState = historyStack.pop()
+    if (previousState) {
+      renderFile.files = previousState
+    }
+  }
+
+  let isListenerAttached = false
+
+  const handleKeyboardShortcuts = (event) => {
+    if (event.key === 'Delete') {
+      if (currentlySelectedElement().attributes['s_id'] === undefined) {
+        console.log('CHULL')
+      } else {
+        deleteElement(currentlySelectedElement().attributes['s_id'])
+      }
+    }
+    if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
+      undoDelete()
+    }
+  }
+
+  function saveProject() {
+    window.fileHandler.saveProject(
+      JSON.stringify(renderFile.files.html),
+      filesData.fileNames.html,
+      JSON.stringify(renderFile.files.css),
+      filesData.fileNames.css
+    )
+  }
+
+  onMount(() => {
+    if (!isListenerAttached) {
+      window.addEventListener('keydown', handleKeyboardShortcuts)
+      isListenerAttached = true
+      return () => {
+        window.removeEventListener('keydown', handleKeyboardShortcuts)
+        isListenerAttached = false
+      }
+    }
+  })
+
   return (
     <div class="">
       <WindowControlRibbon isWorkspace={true} />
@@ -101,7 +179,12 @@ function Workspace() {
           switchIsLeftCollapsed={switchIsLeftCollapsed}
         />
       ) : (
-        <LeftControlBar renderFile={renderFile} isCollapsed={isLeftCollapsed} switchIsCollapsed={switchIsLeftCollapsed} />
+        <LeftControlBar
+          historyStack={historyStack}
+          renderFile={renderFile}
+          isCollapsed={isLeftCollapsed}
+          switchIsCollapsed={switchIsLeftCollapsed}
+        />
       )}
       {isCreateComponenVisible() === true ? (
         <ComponentStoreWindow switchIsCreateComponenVisible={switchIsCreateComponenVisible} />
@@ -124,6 +207,7 @@ function Workspace() {
         windowHeight={renderWindowHeight()}
       />
       <BottomControlBar
+        saveProject={saveProject}
         isCreateComponenVisible={isCreateComponenVisible}
         switchIsAiComponentWriterVisible={switchIsAiComponentWriterVisible}
         switchIsCreateComponenVisible={switchIsCreateComponenVisible}

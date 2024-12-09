@@ -1,4 +1,4 @@
-import { parse } from 'parse5'
+import { parse, serialize } from 'parse5'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -121,6 +121,31 @@ export default class HTMLSerializer {
       await this.writeJsonFile(jsonOutput)
     } catch (error) {
       console.error('Serialization process failed:', error)
+    }
+  }
+
+  static cleanJson(jsonNode) {
+    if (jsonNode.nodeName === '#text') {
+      if (jsonNode.attrs) {
+        delete jsonNode.attrs
+      }
+    }
+
+    if (jsonNode.childNodes) {
+      jsonNode.childNodes.forEach(HTMLSerializer.cleanJson)
+    }
+  }
+
+  static jsonToHtml(jsonData) {
+    try {
+      const parsedJson = JSON.parse(jsonData)
+      const serializedHtmlString = serialize(parsedJson)
+      console.log('Serialized HTML String:', serializedHtmlString)
+
+      return serializedHtmlString
+    } catch (error) {
+      console.error('Failed to convert JSON to HTML:', error)
+      throw error
     }
   }
 }

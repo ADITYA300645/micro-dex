@@ -31,7 +31,7 @@ function CurrentFileComponentsStructure(props) {
   }
 
   function insertToObject(s_id) {
-    console.log(s_id)
+    props.historyStack.push(JSON.parse(JSON.stringify(props.renderFile.files)))
 
     if (!s_id || typeof s_id.value !== 'string') {
       throw new Error('Invalid s_id: Expected a valid object with a string "value" property')
@@ -55,7 +55,7 @@ function CurrentFileComponentsStructure(props) {
 
       currentNode = nextNode
     }
-    currentNode.childNodes.push(draggedComponent().html)
+    currentNode.childNodes.unshift(draggedComponent().html)
 
     const draggedCss = draggedComponent().css
     const cssRules = props.renderFile.files.css

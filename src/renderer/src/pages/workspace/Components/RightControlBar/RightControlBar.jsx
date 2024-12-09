@@ -7,7 +7,6 @@ import TurnSwitchButton from '../../../../components/Buttons/TurnSwitchButton'
 import { ValuesRenderer } from './ValuesModifier/ValuesRenderer'
 
 export default function RightControlBar(props) {
-
   const [width, setWidth] = createSignal(384) // Initial width of the sidebar
   const [isResizing, setIsResizing] = createSignal(false)
   const minWidth = 256 // Minimum width limit
@@ -87,7 +86,10 @@ export default function RightControlBar(props) {
         </div>
       </div>
       <div class="mt-2">
-        <ValuesRenderer currentlySelectedElement={props.currentlySelectedElement}  cssProperties={props.cssProperties}/>
+        <ValuesRenderer
+          currentlySelectedElement={props.currentlySelectedElement}
+          cssProperties={props.cssProperties}
+        />
       </div>
     </div>
   )

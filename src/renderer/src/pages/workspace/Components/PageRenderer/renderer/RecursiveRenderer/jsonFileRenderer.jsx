@@ -1,7 +1,7 @@
 // This Component requires the json format of html
 // from parse 5
 
-import { For } from 'solid-js'
+import { createSignal, For, Show } from 'solid-js'
 
 import { Dynamic } from 'solid-js/web'
 
@@ -27,6 +27,27 @@ function isSolidRenderableTag(tag) {
   }
 }
 
+function isHTag(tag) {
+  const H_TAG = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+  if (H_TAG.has(tag)) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function hTagSize(tag) {
+  const H_Tag = {
+    h1: 'text-3xl',
+    h2: 'text-2xl',
+    h3: 'text-xl',
+    h4: 'text-lg',
+    h5: 'text-md',
+    h6: 'text-base'
+  }
+  return H_Tag[tag]
+}
+
 function shouldNotRenderTag(tag) {
   const shouldNotRender = new Set(['head', 'title', 'meta'])
   return shouldNotRender.has(tag)
@@ -34,7 +55,46 @@ function shouldNotRenderTag(tag) {
 
 export default function jsonObjectRenderer(node) {
   if (node.nodeName === '#text') {
-    return node.value
+    const [isTextEditable, setIsTextEditable] = createSignal(false)
+    const [textValue, setTextValue] = createSignal(node.value)
+
+    const handleDoubleClick = () => {
+      setIsTextEditable(true)
+    }
+
+    const handleBlur = () => {
+      setIsTextEditable(false)
+    }
+
+    const handleInput = (e) => {
+      node.value = e.target.value
+      setTextValue(e.target.value)
+    }
+
+    return (
+      <Show
+        when={isTextEditable()}
+        fallback={
+          <div class="" onDblClick={handleDoubleClick}>
+            {textValue()}
+          </div>
+        }
+      >
+        <input
+          type="text"
+          value={textValue()}
+          onInput={handleInput}
+          onBlur={handleBlur}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              handleBlur()
+            }
+          }}
+          class="border-none px-1 bg-transparent rounded focus:border-none text-center "
+          autoFocus
+        />
+      </Show>
+    )
   }
   if (shouldNotRenderTag(node.tagName)) {
     return <></>
@@ -67,18 +127,20 @@ export default function jsonObjectRenderer(node) {
 
   if (!isSolidRenderableTag(node.tagName)) {
     return (
-      <div
-        ref={self}
-        {...attrs}
-        onDragOver={() => (self.style.border = '1px dotted')}
-        onDragLeave={() => {
-          self.style.opacity = '1'
-        }}
-      >
+      <div ref={self} {...attrs}>
         <For each={node.childNodes}>{(child) => jsonObjectRenderer(child)}</For>
       </div>
     )
   }
+
+  if (isHTag(node.tagName)) {
+    return (
+      <div ref={self} {...attrs} class={`${hTagSize(node.tagName)} font-semibold py-1`}>
+        <For each={node.childNodes}>{(child) => jsonObjectRenderer(child)}</For>
+      </div>
+    )
+  }
+
   const Tag = node.tagName
   return (
     <Dynamic ref={self} component={Tag} {...attrs}>

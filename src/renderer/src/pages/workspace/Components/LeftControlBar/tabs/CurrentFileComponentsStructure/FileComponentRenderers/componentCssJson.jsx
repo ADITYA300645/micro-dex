@@ -23,7 +23,9 @@ const processSelector = (selector) => {
   return selector
     .split(',')
     .map((part) => {
-      const selectorParts = part.trim().split(/\s+/)
+      part = part.trim()
+      const selectorParts = part.split(/\s+/)
+
       return selectorParts
         .map((subPart) => {
           const [baseSelector, ...pseudoParts] = subPart.split(':')
@@ -34,7 +36,7 @@ const processSelector = (selector) => {
             !baseSelector.startsWith('.') &&
             !baseSelector.startsWith('#')
           ) {
-            return `.applicationWrapper ${baseSelector}${pseudo}`
+            return '.' + baseSelector + pseudo
           }
           return baseSelector + pseudo
         })
@@ -46,6 +48,7 @@ const processSelector = (selector) => {
 const convertCssJsonToStringComponent = (cssJson) => {
   const serializeRules = (json) => {
     let cssString = ''
+
     for (const key in json) {
       if (key.startsWith('@')) {
         cssString += `${key} {\n${serializeRules(json[key])}}\n`
@@ -54,15 +57,25 @@ const convertCssJsonToStringComponent = (cssJson) => {
         cssString += `${processedSelector} {\n`
         const properties = json[key]
         for (const prop in properties) {
-          cssString += `  ${prop}: ${properties[prop]};\n`
+          if (typeof properties[prop] === 'object') {
+            cssString += serializeRules({ [prop]: properties[prop] })
+          } else {
+            cssString += `  ${prop}: ${properties[prop]};\n`
+          }
         }
         cssString += '}\n'
       }
     }
+
     return cssString
   }
 
-  return `.componentWrapper {\n${serializeRules(cssJson)}\n}`
+  // Wrap the entire CSS within a `.wrapper` class
+  const wrappedCssString = `.componentWrapper {\n${serializeRules(cssJson)
+    .split('\n')
+    .map((line) => (line ? `  ${line}` : ''))
+    .join('\n')}\n}`
+  return wrappedCssString
 }
 
 export default convertCssJsonToStringComponent

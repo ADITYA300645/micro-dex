@@ -68,7 +68,13 @@ function LeftControlBar(props) {
       <div class="border-t overflow-auto max-h-[86vh] border-gray-300 dark:border-gray-600 mt-2 pt-2 noscrollbar">
         <Show
           when={activeTab() === 'Files'}
-          fallback={<CurrentFileComponentsStructure parentWidth={width} renderFile={props.renderFile}/>}
+          fallback={
+            <CurrentFileComponentsStructure
+              historyStack={props.historyStack}
+              parentWidth={width}
+              renderFile={props.renderFile}
+            />
+          }
         >
           <ProjectFilesStructure />
         </Show>
